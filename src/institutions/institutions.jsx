@@ -32,23 +32,38 @@ function InstitutionsTable() {
   const [status, setStatus] = useState(false);
   const [editingInstitution, setEditingInstitution] = useState(null);
   const [options, setOptions] = useState([]);
+  const [nameError, setNameError] = useState("");
+  const [codeError, setCodeError] = useState("");
+  const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    fetchData(selectedOption);
+  }, [selectedOption]);
 
   useEffect(() => {
     fetchOptions();
   }, [institutions]);
 
-  const fetchData = async () => {
+  const fetchData = async (selectedOption) => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/institutions`
-      );
-      setInstitutions(response.data);
+      let url = `${process.env.REACT_APP_API_URL}/institutions`;
+      let response = null;
+      if (selectedOption) {
+        url = `${process.env.REACT_APP_API_URL}/institution/${selectedOption.id}`;
+        response = await axios.get(url);
+        const institutionsArray = [];
+        institutionsArray.push(response.data)
+        setInstitutions(institutionsArray);
+      }else{
+        response = await axios.get(url);
+        setInstitutions(response.data);
+      }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      if (error.response.status === 404) {
+        setInstitutions([]);
+      } else {
+        console.error("Error fetching data:", error);
+      }
     }
   };
 
@@ -89,9 +104,9 @@ function InstitutionsTable() {
   };
 
   const handleSaveEdit = async () => {
-    // Validate name and code are numeric
-    if (!/^\d+$/.test(name) || !/^\d+$/.test(code)) {
-      console.error("Name and code must be numeric");
+    const isNameValid = validateName();
+    const isCodeValid = validateCode();
+    if (!isNameValid || !isCodeValid) {
       return;
     }
 
@@ -126,6 +141,32 @@ function InstitutionsTable() {
   const handleChange = (event) => {
     setStatus(event.target.value);
   };
+
+  const validateName = () => {
+    if (!name.trim()) {
+      setNameError("Name is required");
+      return false;
+    }
+    if (name.length  > 50) {
+      setNameError("Name must be alphanumeric with up to 50 characters");
+      return false;
+    }
+    setNameError("");
+    return true;
+  };
+
+  const validateCode = () => {
+    if (!code.trim()) {
+      setCodeError("Code is required");
+      return false;
+    }
+    if (code.length  > 5) {
+      setCodeError("Code must be alphanumeric with up to 5 characters");
+      return false;
+    }
+    setCodeError("");
+    return true;
+  };
   return (
     <Container className="my-4">
       <Row>
@@ -135,7 +176,7 @@ function InstitutionsTable() {
             <Grid item xs={12}>
               <Autocomplete
                 className="mb-3"
-                options={options}
+                options={options || []}
                 getOptionLabel={(option) => option.name}
                 renderInput={(params) => (
                   <TextField
@@ -143,6 +184,7 @@ function InstitutionsTable() {
                     label="Search and select an Active Institution"
                   />
                 )}
+                onChange={(_, value) => setSelectedOption(value)}
               />
               <Button
                 className="mb-3"
@@ -219,13 +261,15 @@ function InstitutionsTable() {
                     : "Create Institution"}
                 </DialogTitle>
                 <DialogContent>
-                  <TextField
+                <TextField
                     fullWidth
                     required={true}
                     label="Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="mb-3 mt-3"
+                    error={!!nameError}
+                    helperText={nameError}
                   />
                   <TextField
                     required={true}
@@ -234,6 +278,8 @@ function InstitutionsTable() {
                     value={code}
                     onChange={(e) => setCode(e.target.value)}
                     className="mb-3"
+                    error={!!codeError}
+                    helperText={codeError}
                   />
                   <FormControl fullWidth className="mb-3">
                     <InputLabel>Status</InputLabel>

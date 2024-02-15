@@ -3,15 +3,18 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { Form, Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import LoadingSpinner from './loadingSpinner';
 
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/authenticate`, { username, password });
@@ -21,11 +24,14 @@ const Login = () => {
     } catch (error) {
       setError('Invalid username or password');
       console.error('Login error:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <Container>
+      {loading && <LoadingSpinner />}
       <Row className="justify-content-md-center mt-5">
         <Col xs={12} md={6}>
           <div className="text-center">
@@ -53,7 +59,7 @@ const Login = () => {
               />
             </Form.Group>
             {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
-            <Button variant="primary" type="submit" block className="mt-3"> {/* Apply mt-3 class here */}
+            <Button variant="primary" type="submit" block className="mt-3" disabled={loading}>
               Login
             </Button>
           </Form>
