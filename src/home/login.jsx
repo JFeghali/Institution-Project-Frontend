@@ -35,7 +35,7 @@ const Login = () => {
       <Row className="justify-content-md-center mt-5">
         <Col xs={12} md={6}>
           <div className="text-center">
-            <img src="./mdsl.png" alt="Logo" style={{ height: '100px', marginBottom: '20px' }} />
+            <img src="./mdsl.png" alt="Logo" className='login-logo' />
           </div>
           <Form onSubmit={handleSubmit}>
             <Form.Group controlId="username">
@@ -58,7 +58,7 @@ const Login = () => {
                 placeholder="Enter password"
               />
             </Form.Group>
-            {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+            {error && <div className="error-validation">{error}</div>}
             <Button variant="primary" type="submit" block className="mt-3" disabled={loading}>
               Login
             </Button>

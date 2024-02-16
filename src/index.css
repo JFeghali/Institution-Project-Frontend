@@ -24,3 +24,13 @@ code {
   align-items: center;
   z-index: 9999;
 }
+
+.error-validation {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.login-logo {
+  height: 100px;
+  margin-bottom: 20px;
+}
