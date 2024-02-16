@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axios from "../axiosConfig";
 import {
   Table,
   TableBody,
@@ -52,11 +52,11 @@ function InstitutionsTable() {
         url = `${process.env.REACT_APP_API_URL}/institution/${selectedOption.id}`;
         response = await axios.get(url);
         const institutionsArray = [];
-        institutionsArray.push(response.data)
+        institutionsArray.push(response.data.data);
         setInstitutions(institutionsArray);
-      }else{
+      } else {
         response = await axios.get(url);
-        setInstitutions(response.data);
+        setInstitutions(response.data.data);
       }
     } catch (error) {
       if (error.response.status === 404) {
@@ -72,7 +72,7 @@ function InstitutionsTable() {
       const response = await axios.get(
         `${process.env.REACT_APP_API_URL}/institutions/active`
       );
-      setOptions(response.data);
+      setOptions(response.data.data);
     } catch (error) {
       console.error("Error fetching options:", error);
     }
@@ -147,7 +147,7 @@ function InstitutionsTable() {
       setNameError("Name is required");
       return false;
     }
-    if (name.length  > 50) {
+    if (name.length > 50) {
       setNameError("Name must be alphanumeric with up to 50 characters");
       return false;
     }
@@ -160,7 +160,7 @@ function InstitutionsTable() {
       setCodeError("Code is required");
       return false;
     }
-    if (code.length  > 5) {
+    if (code.length > 5) {
       setCodeError("Code must be alphanumeric with up to 5 characters");
       return false;
     }
@@ -223,7 +223,7 @@ function InstitutionsTable() {
                           <TableCell>{institution.name}</TableCell>
                           <TableCell>{institution.code}</TableCell>
                           <TableCell>
-                            {institution.status ? "True" : "False"}
+                            {institution.status ? "Enabled" : "Disabled"}
                           </TableCell>
                           <TableCell>
                             <Button
@@ -261,7 +261,7 @@ function InstitutionsTable() {
                     : "Create Institution"}
                 </DialogTitle>
                 <DialogContent>
-                <TextField
+                  <TextField
                     fullWidth
                     required={true}
                     label="Name"
@@ -284,8 +284,8 @@ function InstitutionsTable() {
                   <FormControl fullWidth className="mb-3">
                     <InputLabel>Status</InputLabel>
                     <Select value={status} onChange={handleChange}>
-                      <MenuItem value={true}>True</MenuItem>
-                      <MenuItem value={false}>False</MenuItem>
+                      <MenuItem value={true}>Enabled</MenuItem>
+                      <MenuItem value={false}>Disabled</MenuItem>
                     </Select>
                   </FormControl>
                 </DialogContent>
